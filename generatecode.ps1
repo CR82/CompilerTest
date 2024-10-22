@@ -65,41 +65,42 @@ for ($i = 1; $i -le 100; $i++) {
 }
 
 # Generate main.cpp
-$mainCppContent = @"
+$mainCppContent = @'
 #include <iostream>
 #include <vector>
 #include <string>
-"
+
+'@
 
 for ($i = 1; $i -le 100; $i++) {
-    $mainCppContent += " #include \"file$i.h`n"
+    $mainCppContent += "`#include `"file$i.h`"`n"
 }
 
-$mainCppContent += @"
+$mainCppContent += @'
 
 int main() {
     double total = 0.0;
-    for(int i = 1; i <= 100; ++i) {
-        switch(i) {
-"
+    for (int i = 1; i <= 100; ++i) {
+        switch (i) {
+'@
 
 for ($i = 1; $i -le 100; $i++) {
-    $mainCppContent += "            case $i: {
+    $mainCppContent += "            case ${i}: {
                 total += Module$i::process();
                 break;
             }
 "
 }
 
-$mainCppContent += @"
+$mainCppContent += @'
             default:
                 break;
         }
     }
-    std::cout << ""Total Sum: "" << total << std::endl;
+    std::cout << "Total Sum: " << total << std::endl;
     return 0;
 }
-"@
+'@
 
 $mainCppPath = Join-Path -Path $srcDir -ChildPath "main.cpp"
 Set-Content -Path $mainCppPath -Value $mainCppContent
@@ -114,7 +115,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 file(GLOB SOURCES "src/*.cpp")
 
-add_executable($projectName \$\{SOURCES\})
+add_executable($projectName `${SOURCES})
 "@
 
 $cmakePath = Join-Path -Path $projectDir -ChildPath "CMakeLists.txt"
