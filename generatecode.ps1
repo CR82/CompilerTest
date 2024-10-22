@@ -2,6 +2,8 @@
 $projectName = "CppCompilationTest"
 $projectDir = Join-Path -Path (Get-Location) -ChildPath $projectName
 
+$sourceFileCount = 50
+
 # Create project directory
 if (-Not (Test-Path $projectDir)) {
     New-Item -ItemType Directory -Path $projectDir | Out-Null
@@ -16,7 +18,8 @@ if (-Not (Test-Path $srcDir)) {
 # Function to generate complex C++ code
 function GenerateHeaderCode($fileIndex) {
     @"
-#pragma once
+#ifndef FILE${fileIndex}_H
+#define FILE${fileIndex}_H
 
 #include <vector>
 #include <algorithm>
@@ -25,15 +28,39 @@ function GenerateHeaderCode($fileIndex) {
 
 namespace Module$fileIndex {
 
-    class HeavyClass$fileIndex {
+    class MyClass$fileIndex {
     public:
-        HeavyClass$fileIndex() {
+        MyClass$fileIndex() {
             for(int i = 0; i < 1000; ++i) {
                 data.push_back(std::sqrt(i * i + double(i)));
             }
         }
 
-        double computeSum() const {
+        double computeSum() const;
+
+    private:
+        std::vector<double> data;
+    };
+
+    inline double process() {
+        MyClass$fileIndex myClass;
+        return myClass.computeSum();
+    }
+
+} // namespace Module$fileIndex
+
+#endif // FILE$fileIndex_H
+
+"@
+}
+
+function GenerateCppCode($fileIndex) {
+    @"
+#include "file$fileIndex.h"
+
+namespace Module$fileIndex {
+
+    double MyClass$fileIndex::computeSum() const {
             double sum = 0;
             for(auto val : data) {
                 sum += val;
@@ -41,27 +68,23 @@ namespace Module$fileIndex {
             return sum;
         }
 
-    private:
-        std::vector<double> data;
-    };
-
-    double process() {
-        HeavyClass$fileIndex hc;
-        return hc.computeSum();
-    }
-
 } // namespace Module$fileIndex
 
 "@
 }
 
-# Generate 100 cpp and h files
-for ($i = 1; $i -le 100; $i++) {
+for ($i = 1; $i -le $sourceFileCount; $i++) {
     $headerContent = GenerateHeaderCode $i
     
     $headerPath = Join-Path -Path $srcDir -ChildPath "file$i.h"
 
     Set-Content -Path $headerPath -Value $headerContent
+
+    $cppContent = GenerateCppCode $i
+
+    $cppPath = Join-Path -Path $srcDir -ChildPath "file$i.cpp"
+
+    Set-Content -Path $cppPath -Value $cppContent
 }
 
 # Generate main.cpp
@@ -72,19 +95,19 @@ $mainCppContent = @'
 
 '@
 
-for ($i = 1; $i -le 100; $i++) {
+for ($i = 1; $i -le $sourceFileCount; $i++) {
     $mainCppContent += "`#include `"file$i.h`"`n"
 }
 
-$mainCppContent += @'
+$mainCppContent += @"
 
 int main() {
     double total = 0.0;
-    for (int i = 1; i <= 100; ++i) {
+    for (int i = 1; i <= $sourceFileCount; ++i) {
         switch (i) {
-'@
+"@
 
-for ($i = 1; $i -le 100; $i++) {
+for ($i = 1; $i -le $sourceFileCount; $i++) {
     $mainCppContent += "            case ${i}: {
                 total += Module$i::process();
                 break;
@@ -109,6 +132,12 @@ Set-Content -Path $mainCppPath -Value $mainCppContent
 $cmakeContent = @"
 cmake_minimum_required(VERSION 3.10)
 project($projectName)
+
+# Set GCC as the C compiler
+set(CMAKE_C_COMPILER "gcc")
+
+# Set G++ as the C++ compiler
+set(CMAKE_CXX_COMPILER "g++")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
