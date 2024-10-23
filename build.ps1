@@ -1,5 +1,7 @@
 cd .\CppCompilationTest
-rm .\build -Recurse -Force
+if (Test-Path .\build) {
+  rm .\build -Recurse -Force
+}
 mkdir .\build
 cd .\build
 cmake ..

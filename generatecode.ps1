@@ -1,8 +1,15 @@
+. .\generateheadercode.ps1
+. .\generatecppcode.ps1
+
 # Define the project directory
 $projectName = "CppCompilationTest"
 $projectDir = Join-Path -Path (Get-Location) -ChildPath $projectName
 
-$sourceFileCount = 50
+if (Test-Path .\CppCompilationTest) {
+    rm .\CppCompilationTest -Recurse -Force
+}
+
+$sourceFileCount = 5
 
 # Create project directory
 if (-Not (Test-Path $projectDir)) {
@@ -15,64 +22,7 @@ if (-Not (Test-Path $srcDir)) {
     New-Item -ItemType Directory -Path $srcDir | Out-Null
 }
 
-# Function to generate complex C++ code
-function GenerateHeaderCode($fileIndex) {
-    @"
-#ifndef FILE${fileIndex}_H
-#define FILE${fileIndex}_H
-
-#include <vector>
-#include <algorithm>
-#include <cmath>
-#include <string>
-
-namespace Module$fileIndex {
-
-    class MyClass$fileIndex {
-    public:
-        MyClass$fileIndex() {
-            for(int i = 0; i < 1000; ++i) {
-                data.push_back(std::sqrt(i * i + double(i)));
-            }
-        }
-
-        double computeSum() const;
-
-    private:
-        std::vector<double> data;
-    };
-
-    inline double process() {
-        MyClass$fileIndex myClass;
-        return myClass.computeSum();
-    }
-
-} // namespace Module$fileIndex
-
-#endif // FILE$fileIndex_H
-
-"@
-}
-
-function GenerateCppCode($fileIndex) {
-    @"
-#include "file$fileIndex.h"
-
-namespace Module$fileIndex {
-
-    double MyClass$fileIndex::computeSum() const {
-            double sum = 0;
-            for(auto val : data) {
-                sum += val;
-            }
-            return sum;
-        }
-
-} // namespace Module$fileIndex
-
-"@
-}
-
+#Generate source files
 for ($i = 1; $i -le $sourceFileCount; $i++) {
     $headerContent = GenerateHeaderCode $i
     
@@ -80,7 +30,7 @@ for ($i = 1; $i -le $sourceFileCount; $i++) {
 
     Set-Content -Path $headerPath -Value $headerContent
 
-    $cppContent = GenerateCppCode $i
+    $cppContent = GenerateCppCode $i $sourceFileCount
 
     $cppPath = Join-Path -Path $srcDir -ChildPath "file$i.cpp"
 
