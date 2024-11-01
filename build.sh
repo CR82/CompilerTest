@@ -3,12 +3,17 @@ rm -rf ./build
 mkdir ./build
 cd ./build
 
-# Check operating system and use appropriate cmake generator
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    cmake ..
-else
-    cmake -G "MinGW Makefiles" -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ ..
-fi
+# Detect operating system using uname
+OS_NAME="$(uname -s)"
+
+case "$OS_NAME" in
+    Linux*)
+        cmake ..
+        ;;
+    *)
+        cmake -G "MinGW Makefiles" ..
+        ;;
+esac
 
 cmake --build . -j 1
 cd ..
