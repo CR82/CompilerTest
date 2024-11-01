@@ -10,6 +10,7 @@ if (Test-Path .\CppCompilationTest) {
 }
 
 $sourceFileCount = 5
+$sourceFunctionCount = 10000
 
 # Create project directory
 if (-Not (Test-Path $projectDir)) {
@@ -24,13 +25,13 @@ if (-Not (Test-Path $srcDir)) {
 
 #Generate source files
 for ($i = 1; $i -le $sourceFileCount; $i++) {
-    $headerContent = GenerateHeaderCode $i
+    $headerContent = GenerateHeaderCode $i $sourceFunctionCount
     
     $headerPath = Join-Path -Path $srcDir -ChildPath "file$i.h"
 
     Set-Content -Path $headerPath -Value $headerContent
 
-    $cppContent = GenerateCppCode $i $sourceFileCount
+    $cppContent = GenerateCppCode $i $sourceFileCount $sourceFunctionCount
 
     $cppPath = Join-Path -Path $srcDir -ChildPath "file$i.cpp"
 

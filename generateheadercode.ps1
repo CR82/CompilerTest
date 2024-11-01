@@ -1,5 +1,10 @@
-function GenerateHeaderCode($fileIndex) {
-  @"
+function GenerateHeaderCode($fileIndex, $sourceFunctionCount) {
+    $functions = @()
+    for ($i = 0; $i -lt $sourceFunctionCount; $i++) {
+        $functions += "double computeSum$i() const;"
+    }
+    $functionDeclarations = $functions -join "`n      "
+    return @"
 #ifndef FILE${fileIndex}_H
 #define FILE${fileIndex}_H
 
@@ -19,6 +24,7 @@ namespace Module$fileIndex {
       }
 
       double computeSum() const;
+      $functionDeclarations
 
   private:
       std::vector<double> data;
