@@ -10,7 +10,7 @@ if (Test-Path .\CppCompilationTest) {
 }
 
 $sourceFileCount = 5
-$sourceFunctionCount = 10000
+$sourceFunctionCount = 5000
 
 # Create project directory
 if (-Not (Test-Path $projectDir)) {
