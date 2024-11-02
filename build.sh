@@ -1,20 +1,19 @@
 cd ./CppCompilationTest
 rm -rf ./build
 mkdir ./build
-cd ./build
 
 # Detect operating system using uname
 OS_NAME="$(uname -s)"
 
 case "$OS_NAME" in
     Linux*)
-        cmake ..
+        cmake -B build
         ;;
     *)
-        cmake -G "MinGW Makefiles" ..
+        cmake -G "MinGW Makefiles" -B build
         ;;
 esac
 
-cmake --build . -j 1
-cd ..
+time cmake --build build -j1 
+
 cd ..

@@ -2,9 +2,11 @@ cd .\CppCompilationTest
 if (Test-Path .\build) {
   rm .\build -Recurse -Force
 }
+
 mkdir .\build
-cd .\build
-cmake ..
-cmake --build . -j 1
-cd ..
+
+cmake -B build
+
+cmake --build build -j 1
+
 cd ..
