@@ -1,1 +1,1 @@
-time cmake --build CppCompilationTest/build -j1 
+time cmake --build CppCompilationTest/build --clean-first -j1 
