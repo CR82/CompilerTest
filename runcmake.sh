@@ -1,3 +1,6 @@
+export CC=gcc
+export CXX=g++
+
 cd ./CppCompilationTest
 rm -rf ./build
 mkdir ./build
